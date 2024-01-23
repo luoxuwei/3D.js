@@ -63,6 +63,11 @@ export default class WebGLRenderer {
         "rotationMatrix"
       );
       this.gl.uniformMatrix4fv(rotationMatrix, false, mesh.rotationMatrix);
+          // 更新模型矩阵
+      mesh.updateMatrix();
+      // 设置物体的模型矩阵的uniform
+      const modelMatrix = this.gl.getUniformLocation(program, "modelMatrix");
+      this.gl.uniformMatrix4fv(modelMatrix, false, mesh.matrix.toArray());
     }
     setViewMatrix(program, camera) {
       let pMatrixLocation = this.gl.getUniformLocation(program, "pMatrix");

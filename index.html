@@ -42,7 +42,7 @@
         function render() {
         cube.rotation.y += 0.01;
 
-        // cube.scale.x = 1 + Math.sin(cube.rotation.y) * 0.5;
+        cube.scale.x = 1 + Math.sin(cube.rotation.y) * 0.5;
         renderer.render(scene, camera);
         requestAnimationFrame(render);
       }

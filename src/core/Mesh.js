@@ -15,4 +15,14 @@ export default class Mesh extends Object3D {
       1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
     ]);
   }
+
+  updateRatatationMatrix() {
+    let mat = [
+      [Math.cos(this.rotation.y), 0, Math.sin(this.rotation.y), 0],
+      [0, 1, 0, 0],
+      [-Math.sin(this.rotation.y), 0, Math.cos(this.rotation.y), 0],
+      [0, 0, 0, 1],
+    ];
+    this.rotationMatrix = new Float32Array(mat.flat());
+  }
 }

@@ -55,7 +55,15 @@ export default class WebGLRenderer {
       );
     }
     setFragmentShader(program, material) {}
-    setModelMatrix(program, mesh) {}
+    setModelMatrix(program, mesh) {
+      mesh.updateRatatationMatrix();
+      //设置物体旋转矩阵的uniform
+      const rotationMatrix = this.gl.getUniformLocation(
+        program,
+        "rotationMatrix"
+      );
+      this.gl.uniformMatrix4fv(rotationMatrix, false, mesh.rotationMatrix);
+    }
     setViewMatrix(program, camera) {
       let pMatrixLocation = this.gl.getUniformLocation(program, "pMatrix");
       this.gl.uniformMatrix4fv(pMatrixLocation, false, camera.pMatrix.flat());
@@ -142,12 +150,7 @@ export default class WebGLRenderer {
         this.gl.enableVertexAttribArray(colorLocation);
       }
   
-      //设置物体旋转矩阵的uniform
-      const rotationMatrix = this.gl.getUniformLocation(
-        program,
-        "rotationMatrix"
-      );
-      this.gl.uniformMatrix4fv(rotationMatrix, false, mesh.rotationMatrix);
+
     }
     getProgram(material) {
       // 获取材质的类型

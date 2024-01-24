@@ -3,7 +3,7 @@ export default class WebGLRenderer {
       this.type = "WebGLRenderer";
       this.programs = {};
       this.domElement = document.createElement("canvas"); // 创建一个canvas元素
-      this.gl = this.domElement.getContext("webgl"); // 获取webgl上下文
+      this.gl = this.domElement.getContext("webgl2"); // 获取webgl上下文
       // 设置深度检测
       this.gl.enable(this.gl.DEPTH_TEST);
       this.gl.clearColor(0, 0, 0, 1);
@@ -145,6 +145,14 @@ export default class WebGLRenderer {
 
     }
     setVertexShaderAttribute(program, mesh) {
+      //vao，如果有直接返回下面那些顶点的操作都不用做了
+      if (mesh.vao) {
+        this.gl.bindVertexArray(mesh.vao);
+        return;
+      } else {
+        mesh.vao = this.gl.createVertexArray();
+        this.gl.bindVertexArray(mesh.vao);
+      }
       // 获取几何体的顶点数据
       const geometry = mesh.geometry;
       const position = geometry.attributes.position;

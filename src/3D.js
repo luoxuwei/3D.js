@@ -5,6 +5,9 @@ import Mesh from "./core/Mesh.js";
 import MeshBasicMaterial from "./core/MeshBasicMaterial.js";
 import WebGLRenderer from "./core/WebGLRenderer.js";
 import OribitControls from "./core/OribitControls.js"
+import PlaneGeometry from "./core/PlaneGeometry.js";
+import Texture from "./core/Texture.js";
+import TextureLoader from "./core/TextureLoader.js";
 
 export default {
   Scene,
@@ -14,4 +17,7 @@ export default {
   MeshBasicMaterial,
   WebGLRenderer,
   OribitControls,
+  PlaneGeometry,
+  Texture,
+  TextureLoader,
 };

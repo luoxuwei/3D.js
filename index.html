@@ -34,18 +34,34 @@
         let renderer = new Engin.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
-        let geometry = new Engin.BoxGeometry(1,1,1);
+        // let geometry = new Engin.BoxGeometry(1,1,1);
+        // let material = new Engin.MeshBasicMaterial({
+        //     color:0x00ff00,
+        // })
+        // let cube = new Engin.Mesh(geometry, material);
+        // scene.add(cube);
+              // 创建一个平面几何体
+        let geometry = new Engin.PlaneGeometry(2, 2);
+        // 创建一个纹理对象
         let material = new Engin.MeshBasicMaterial({
-            color:0x00ff00,
-        })
-        let cube = new Engin.Mesh(geometry, material);
-        scene.add(cube);
+          color: 0x00ff00,
+        });
+        // 创建一个网格对象
+        let plane = new Engin.Mesh(geometry, material);
+        // 将网格对象添加到场景中
+        scene.add(plane);
+
+        //加载纹理
+        let loader = new Engin.TextureLoader();
+        loader.load("./assets/door/color.jpg", (texture) => {
+          material.map = texture;
+        });
               // 创建控制器
         let controls = new Engin.OribitControls(camera, renderer.domElement);
         function render() {
-        cube.rotation.y += 0.01;
+        // cube.rotation.y += 0.01;
 
-        cube.scale.x = 1 + Math.sin(cube.rotation.y) * 0.5;
+        // cube.scale.x = 1 + Math.sin(cube.rotation.y) * 0.5;
         renderer.render(scene, camera);
         requestAnimationFrame(render);
       }

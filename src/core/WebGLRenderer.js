@@ -47,6 +47,7 @@ export default class WebGLRenderer {
       this.setModelMatrix(program, mesh);
       // 设置视图矩阵
       this.setViewMatrix(program, camera);
+      this.setUniform(program, mesh, camera);
       // 绘制
       // this.gl.drawArrays(
       //   this.gl.TRIANGLES,
@@ -60,6 +61,59 @@ export default class WebGLRenderer {
         this.gl.UNSIGNED_SHORT,
         0
       );
+    }
+    setUniform(program, mesh, camera) {
+      // 设置纹理
+      if (mesh.material.map) {
+        this.setUniformTexture(program, mesh);
+      }
+    }
+    setUniformTexture(program, mesh) {
+      // 获取纹理
+      const texture = mesh.material.map;
+  
+      if (!texture.textureObj) {
+        // 创建纹理对象
+        const textureObject = this.gl.createTexture();
+        texture.textureObj = textureObject;
+      }
+      // 绑定纹理对象
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture.textureObj);
+      // 设置纹理参数
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_WRAP_S,
+        this.gl[texture.wrapS]
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_WRAP_T,
+        this.gl[texture.wrapT]
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_MIN_FILTER,
+        this.gl[texture.minFilter]
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_MAG_FILTER,
+        this.gl[texture.magFilter]
+      );
+      // 设置纹理图像
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D,
+        0,
+        this.gl.RGBA,
+        this.gl.RGBA,
+        this.gl.UNSIGNED_BYTE,
+        texture.image
+      );
+  
+      // 获取纹理位置
+      const textureLocation = this.gl.getUniformLocation(program, "u_texture");
+      // 设置纹理位置
+      this.gl.uniform1i(textureLocation, 0);
     }
       // 设置索引缓冲区
     setIndexBuffer(program, geometry) {
@@ -190,6 +244,18 @@ export default class WebGLRenderer {
         this.gl.bufferData(this.gl.ARRAY_BUFFER, colors, this.gl.STATIC_DRAW);
         this.gl.vertexAttribPointer(colorLocation, 4, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(colorLocation);
+      }
+      // 如果顶点有uv属性
+      if (geometry.attributes && geometry.attributes.uv) {
+        const uv = geometry.attributes.uv;
+        const uvLocation = this.gl.getAttribLocation(program, "uv");
+        if (!geometry.bufferData.uv) {
+          geometry.bufferData.uv = this.gl.createBuffer();
+        }
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.bufferData.uv);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, uv, this.gl.STATIC_DRAW);
+        this.gl.vertexAttribPointer(uvLocation, 2, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(uvLocation);
       }
       // 设置索引缓冲区
       this.setIndexBuffer(program, geometry);

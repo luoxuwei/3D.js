@@ -3,7 +3,7 @@ export default class Scene extends Object3D {
     constructor() {
         super()
         this.type = "Scence";
-        this.background = [1, 1, 1, 1];
+        this.background = [0, 0, 0, 1];
     }
 
 

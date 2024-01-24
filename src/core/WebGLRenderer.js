@@ -20,6 +20,7 @@ export default class WebGLRenderer {
     render(scene, camera) {
       // 清空画布
       this.gl.clearColor(...scene.background);
+      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
       // 循环遍历场景中的物体
       scene.traverse((object) => {
         if (object.type === "Mesh") {
@@ -94,13 +95,14 @@ export default class WebGLRenderer {
       // 设置灯光方向
       const directionLocation = this.gl.getUniformLocation(program, "lightDir");
       let target = light.target;
-      let direction = position.sub(target).normalize();
+      let direction = position.clone().sub(target).normalize();
       this.gl.uniform3fv(
         directionLocation,
         new Float32Array([direction.x, direction.y, direction.z])
       );
       // 设置灯光角度
-      const angleLocation = this.gl.getUniformLocation(program, "u_lightAngle");
+      const angleLocation = this.gl.getUniformLocation(program, "uLightAngle");
+
       this.gl.uniform1f(angleLocation, light.angle);
       // 设置灯光强度
       const intensityLocation = this.gl.getUniformLocation(

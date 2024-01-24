@@ -23,8 +23,11 @@ export default class MeshLambertMaterial {
               gl_Position = pvMatrix * modelMatrix * v_position;;
               vColor = v_color;
               vUv = uv;
-              vNormal = normal;
-              vPosition = v_position.xyz;
+              // 法向和位置经过模型矩阵变换后，变换后在传入片元着色器
+              vec4 tempNormal = modelMatrix * vec4(normal,0.0);
+              vNormal = tempNormal.xyz;
+              vec4 temPosition = modelMatrix * v_position;
+              vPosition = temPosition.xyz;
             }
           `;
 
@@ -41,15 +44,22 @@ export default class MeshLambertMaterial {
       uniform vec3 lightColor;
       uniform vec3 lightDir;
       uniform vec3 lightPos;
+      uniform float uLightAngle;
   
       void main(){
 
         // vec3 lightPos = vec3(2.0,2.0,10.0);
         // vec3 lightDir = normalize(lightPos-vPosition);
+        vec3 lightDirection = normalize(lightPos-vPosition);
         // vec3 lightColor = vec3(1.0,1.0,1.0);
         vec3 normal = normalize(vNormal);
         // 计算出lamert光照强度，由单位法向量和单位光线方向向量点乘得到，角度越大光越弱，向量相乘得到cos
-        float lambert = max(dot(normal,lightDir),0.0);
+        float lambert = max(dot(normal,lightDirection),0.0);
+
+        // 光线与聚光灯方向的夹角
+        float angle = dot(lightDirection,normalize(lightDir));
+
+        lambert = angle < cos(uLightAngle/2.0) ? 0.0:lambert;
 
         vec4 textureColor = u_hasTexture==1 ? texture2D(u_texture,vUv):vec4(1.0,1.0,1.0,1.0);
         // gl_FragColor = textureColor;

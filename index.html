@@ -21,7 +21,7 @@
     <script type="module">
         import Engin from "./src/3D.js";
         import { Vector3 } from "./src/math/Vector3.js";
-
+        import { Euler } from "./src/math/Euler.js";
         let scene = new Engin.Scene();
         let camera = new Engin.PerspectiveCamera(
             70,
@@ -56,6 +56,17 @@
         // loader.load("./assets/door/color.jpg", (texture) => {
         //   material.map = texture;
         // });
+        // 创建一个平面几何体
+        let planeGeometry = new Engin.PlaneGeometry(8, 8);
+        // 创建一个纹理对象
+        let planeMaterial = new Engin.MeshLambertMaterial({
+          color: [0.5, 0.5, 0.5, 1],
+        });
+        // 创建一个网格对象
+        let plane = new Engin.Mesh(planeGeometry, planeMaterial);
+        plane.rotation = new Euler(-Math.PI / 2, 0, 0);
+        // 将网格对象添加到场景中
+        scene.add(plane);
         // 创建一个球几何体
         let geometry = new Engin.SphereGeometry(1, 32, 32);
         // 创建一个纹理对象
@@ -79,7 +90,8 @@
 
         // 创建1个聚光灯
         let light = new Engin.SpotLight([1, 1, 1, 1], 1);
-        light.position.set(0, 0, 5);
+        light.position.set(0, 5, 0);
+        light.target.set(1, 0, 0);
         scene.add(light);
 
         // 创建控制器

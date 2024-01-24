@@ -120,6 +120,21 @@ export default class WebGLRenderer {
       if (mesh.material.color) {
         this.setUniformColor(program, mesh);
       }
+      // 设置相机位置
+      if (camera.position) {
+        this.setUniformCameraPosition(program, camera);
+      }
+    }
+    setUniformCameraPosition(program, camera) {
+      const positionLocation = this.gl.getUniformLocation(program, "uEye");
+      this.gl.uniform3fv(
+        positionLocation,
+        new Float32Array([
+          camera.position.x,
+          camera.position.y,
+          camera.position.z,
+        ])
+      );
     }
     setUniformColor(program, mesh) {
       const color = mesh.material.color;

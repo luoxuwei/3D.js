@@ -10,6 +10,7 @@ import Texture from "./core/Texture.js";
 import TextureLoader from "./core/TextureLoader.js";
 import SphereGeometry from "./core/SphereGeometry.js";
 import MeshLambertMaterial from "./core/MeshLambertMaterial.js";
+import SpotLight from "./core/SpotLight.js";
 
 export default {
   Scene,
@@ -24,4 +25,5 @@ export default {
   TextureLoader,
   SphereGeometry,
   MeshLambertMaterial,
+  SpotLight,
 };

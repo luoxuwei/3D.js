@@ -71,11 +71,16 @@
         // 将网格对象添加到场景中
         scene.add(sphere);
 
-        //加载纹理
-        let loader = new Engin.TextureLoader();
-        loader.load("./assets/env.jpg", (texture) => {
-          material.map = texture;
-        });
+        // //加载纹理
+        // let loader = new Engin.TextureLoader();
+        // loader.load("./assets/env.jpg", (texture) => {
+        //   material.map = texture;
+        // });
+
+        // 创建1个聚光灯
+        let light = new Engin.SpotLight([1, 1, 1, 1], 1);
+        light.position.set(0, 0, 5);
+        scene.add(light);
 
         // 创建控制器
         let controls = new Engin.OribitControls(camera, renderer.domElement);

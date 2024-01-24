@@ -8,6 +8,7 @@ export default class WebGLRenderer {
       this.gl.enable(this.gl.DEPTH_TEST);
       this.gl.clearColor(0, 0, 0, 1);
       this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+      this.lightArray = [];
     }
     setSize(width, height) {
       this.domElement.width = width;
@@ -24,6 +25,10 @@ export default class WebGLRenderer {
         if (object.type === "Mesh") {
           // 如果是网格对象，就调用渲染网格对象的方法
           this.renderMesh(object, camera);
+        }
+        if (object.isLight && object.isAdd === undefined) {
+          this.lightArray.push(object);
+          object.isAdd = true;
         }
       });
     }
@@ -48,6 +53,8 @@ export default class WebGLRenderer {
       // 设置视图矩阵
       this.setViewMatrix(program, camera);
       this.setUniform(program, mesh, camera);
+      // 设置灯光
+      this.setLight(program, mesh, camera);
       // 绘制
       // this.gl.drawArrays(
       //   this.gl.TRIANGLES,
@@ -61,6 +68,46 @@ export default class WebGLRenderer {
         this.gl.UNSIGNED_SHORT,
         0
       );
+    }
+    // 设置灯光
+    setLight(program, mesh, camera) {
+      this.lightArray.forEach((light) => {
+        if (light.type === "SpotLight") {
+          this.setSpotLight(program, light, camera);
+        }
+      });
+    }
+    setSpotLight(program, light, camera) {
+      // 设置灯光颜色
+      const colorLocation = this.gl.getUniformLocation(program, "lightColor");
+      this.gl.uniform3fv(
+        colorLocation,
+        new Float32Array([light.color[0], light.color[1], light.color[2]])
+      );
+      // 设置灯光位置
+      const positionLocation = this.gl.getUniformLocation(program, "lightPos");
+      const position = light.position;
+      this.gl.uniform3fv(
+        positionLocation,
+        new Float32Array([position.x, position.y, position.z])
+      );
+      // 设置灯光方向
+      const directionLocation = this.gl.getUniformLocation(program, "lightDir");
+      let target = light.target;
+      let direction = position.sub(target).normalize();
+      this.gl.uniform3fv(
+        directionLocation,
+        new Float32Array([direction.x, direction.y, direction.z])
+      );
+      // 设置灯光角度
+      const angleLocation = this.gl.getUniformLocation(program, "u_lightAngle");
+      this.gl.uniform1f(angleLocation, light.angle);
+      // 设置灯光强度
+      const intensityLocation = this.gl.getUniformLocation(
+        program,
+        "u_lightIntensity"
+      );
+      this.gl.uniform1f(intensityLocation, light.intensity);
     }
     setUniform(program, mesh, camera) {
       // 设置纹理

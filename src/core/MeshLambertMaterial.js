@@ -44,9 +44,9 @@ export default class MeshLambertMaterial {
   
       void main(){
 
-        vec3 lightPos = vec3(2.0,2.0,10.0);
-        vec3 lightDir = normalize(lightPos-vPosition);
-        vec3 lightColor = vec3(1.0,1.0,1.0);
+        // vec3 lightPos = vec3(2.0,2.0,10.0);
+        // vec3 lightDir = normalize(lightPos-vPosition);
+        // vec3 lightColor = vec3(1.0,1.0,1.0);
         vec3 normal = normalize(vNormal);
         // 计算出lamert光照强度，由单位法向量和单位光线方向向量点乘得到，角度越大光越弱，向量相乘得到cos
         float lambert = max(dot(normal,lightDir),0.0);

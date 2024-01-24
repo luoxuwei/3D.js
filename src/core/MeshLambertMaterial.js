@@ -64,8 +64,11 @@ export default class MeshLambertMaterial {
         //小于5为1，大于6为0
         float distanceStrength = 1.0 - smoothstep(5.0,6.0,distance);
 
+        // 聚光灯角度衰减
+        float angleStrength = 1.0 - smoothstep(cos(uLightAngle/2.0-0.15),cos(uLightAngle/2.0),angle);
+
         // lambert = angle < cos(uLightAngle/2.0) ? 0.0:lambert;
-        lambert = distanceStrength*lambert;
+        lambert = distanceStrength * angleStrength*lambert;
 
         vec4 textureColor = u_hasTexture==1 ? texture2D(u_texture,vUv):vec4(1.0,1.0,1.0,1.0);
         // gl_FragColor = textureColor;

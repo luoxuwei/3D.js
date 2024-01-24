@@ -27,20 +27,33 @@ export default class BoxGeometry {
           [1.0, 1.0, 0.0, 1.0],
           [1.0, 0.0, 1.0, 1.0],
           [0.0, 1.0, 1.0, 1.0],
+          [1.0, 0.0, 1.0, 1.0],
+          [0.0, 1.0, 1.0, 1.0],
         ];
         let points = [];
         let colors = [];
+        let index = [];
         faces.forEach((face, i) => {
-          let faceIndices = [face[0], face[1], face[2], face[0], face[2], face[3]];
-          faceIndices.forEach((index) => {
-            points.push(vertices[index]);
-            colors.push(faceColors[i]);
-          });
+          // let faceIndices = [face[0], face[1], face[2], face[0], face[2], face[3]];
+    
+          // faceIndices.forEach((index) => {
+          //   points.push(vertices[index]);
+          //   colors.push(faceColors[i]);
+          // });
+          // 生成顶点索引
+          index.push(face[0], face[1], face[2], face[0], face[2], face[3]);
         });
     
+        this.index = new Uint16Array(index);
+    
+        // this.attributes = {
+        //   position: new Float32Array(points.flat()),
+        //   colors: new Float32Array(colors.flat()),
+        // };
+    
         this.attributes = {
-          position: new Float32Array(points.flat()),
-          colors: new Float32Array(colors.flat()),
+          position: new Float32Array(vertices.flat()),
+          colors: new Float32Array(faceColors.flat()),
         };
         this.bufferData = {};
     }

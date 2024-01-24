@@ -48,10 +48,30 @@ export default class WebGLRenderer {
       // 设置视图矩阵
       this.setViewMatrix(program, camera);
       // 绘制
-      this.gl.drawArrays(
+      // this.gl.drawArrays(
+      //   this.gl.TRIANGLES,
+      //   0,
+      //   geometry.attributes.position.length / 4
+      // );
+
+      this.gl.drawElements(
         this.gl.TRIANGLES,
-        0,
-        geometry.attributes.position.length / 4
+        geometry.index.length,
+        this.gl.UNSIGNED_SHORT,
+        0
+      );
+    }
+      // 设置索引缓冲区
+    setIndexBuffer(program, geometry) {
+      // 创建索引缓冲区
+      const indexBuffer = this.gl.createBuffer();
+      // 绑定索引缓冲区
+      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      // 向索引缓冲区写入数据
+      this.gl.bufferData(
+        this.gl.ELEMENT_ARRAY_BUFFER,
+        geometry.index,
+        this.gl.STATIC_DRAW
       );
     }
     setFragmentShader(program, material) {}
@@ -163,7 +183,8 @@ export default class WebGLRenderer {
         this.gl.vertexAttribPointer(colorLocation, 4, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(colorLocation);
       }
-  
+      // 设置索引缓冲区
+      this.setIndexBuffer(program, geometry);
 
     }
     getProgram(material) {

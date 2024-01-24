@@ -59,7 +59,13 @@ export default class MeshLambertMaterial {
         // 光线与聚光灯方向的夹角
         float angle = dot(lightDirection,normalize(lightDir));
 
-        lambert = angle < cos(uLightAngle/2.0) ? 0.0:lambert;
+        // 光线到物体的距离
+        float distance = length(lightPos-vPosition);
+        //小于5为1，大于6为0
+        float distanceStrength = 1.0 - smoothstep(5.0,6.0,distance);
+
+        // lambert = angle < cos(uLightAngle/2.0) ? 0.0:lambert;
+        lambert = distanceStrength*lambert;
 
         vec4 textureColor = u_hasTexture==1 ? texture2D(u_texture,vUv):vec4(1.0,1.0,1.0,1.0);
         // gl_FragColor = textureColor;

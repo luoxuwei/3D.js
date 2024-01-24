@@ -40,7 +40,8 @@
         })
         let cube = new Engin.Mesh(geometry, material);
         scene.add(cube);
-        
+              // 创建控制器
+        let controls = new Engin.OribitControls(camera, renderer.domElement);
         function render() {
         cube.rotation.y += 0.01;
 

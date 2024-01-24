@@ -4,6 +4,7 @@ import BoxGeometry from "./core/BoxGeometry.js";
 import Mesh from "./core/Mesh.js";
 import MeshBasicMaterial from "./core/MeshBasicMaterial.js";
 import WebGLRenderer from "./core/WebGLRenderer.js";
+import OribitControls from "./core/OribitControls.js"
 
 export default {
   Scene,
@@ -12,4 +13,5 @@ export default {
   Mesh,
   MeshBasicMaterial,
   WebGLRenderer,
+  OribitControls,
 };

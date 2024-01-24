@@ -20,6 +20,7 @@
   <body>
     <script type="module">
         import Engin from "./src/3D.js";
+        import { Vector3 } from "./src/math/Vector3.js";
 
         let scene = new Engin.Scene();
         let camera = new Engin.PerspectiveCamera(
@@ -29,6 +30,7 @@
             1000
         );
         camera.position.set(2,2,2);
+        camera.lookAt(new Vector3(0, 0, 0));
         let renderer = new Engin.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);

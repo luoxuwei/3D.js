@@ -23,7 +23,9 @@ export default class MeshBasicMaterial {
         
                 // 模型矩阵
                 uniform mat4 modelMatrix;
-                
+
+                // 视图投影矩阵
+                uniform mat4 pvMatrix;
         
         
                 
@@ -71,7 +73,8 @@ export default class MeshBasicMaterial {
                   // gl_Position =tMatrix*rotationMatrix*v_position;
                   // gl_Position =rMatrix*tMatrix*rotationMatrix*v_position;
                   // gl_Position =pMatrix*rMatrix*tMatrix*rotationMatrix*v_position;
-                  gl_Position = pMatrix*rMatrix*tMatrix*modelMatrix * v_position;
+                  // gl_Position = pMatrix*rMatrix*tMatrix*modelMatrix * v_position;
+                  gl_Position = pvMatrix * modelMatrix * v_position;
                   // vec4 pos = rMatrix*tMatrix*rotationMatrix*v_position;
                   // pos.z = -pos.z;
                   // gl_Position =pMatrix*pos ;

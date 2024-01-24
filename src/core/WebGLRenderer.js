@@ -114,6 +114,15 @@ export default class WebGLRenderer {
       this.gl.uniform1f(nearLocation, camera.near);
       let farLocation = this.gl.getUniformLocation(program, "far");
       this.gl.uniform1f(farLocation, camera.far);
+
+          // 传递pvMatrix
+      let pvMatrixLocation = this.gl.getUniformLocation(program, "pvMatrix");
+      this.gl.uniformMatrix4fv(
+        pvMatrixLocation,
+        false,
+        camera.pvMatrix.toArray()
+      );
+
     }
     setVertexShaderAttribute(program, mesh) {
       // 获取几何体的顶点数据

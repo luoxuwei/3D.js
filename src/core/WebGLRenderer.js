@@ -67,6 +67,15 @@ export default class WebGLRenderer {
       if (mesh.material.map) {
         this.setUniformTexture(program, mesh);
       }
+      // 设置颜色
+      if (mesh.material.color) {
+        this.setUniformColor(program, mesh);
+      }
+    }
+    setUniformColor(program, mesh) {
+      const color = mesh.material.color;
+      const colorLocation = this.gl.getUniformLocation(program, "u_color");
+      this.gl.uniform4fv(colorLocation, color);
     }
     setUniformTexture(program, mesh) {
       // 获取纹理
@@ -115,6 +124,12 @@ export default class WebGLRenderer {
       const textureLocation = this.gl.getUniformLocation(program, "u_texture");
       // 设置纹理位置
       this.gl.uniform1i(textureLocation, 0);
+      // 传入uniform已传入纹理
+      const hasTextureLocation = this.gl.getUniformLocation(
+        program,
+        "u_hasTexture"
+      );
+      this.gl.uniform1i(hasTextureLocation, 1);
     }
       // 设置索引缓冲区
     setIndexBuffer(program, geometry) {

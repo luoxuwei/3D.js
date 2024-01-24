@@ -59,15 +59,19 @@
         // 创建一个球几何体
         let geometry = new Engin.SphereGeometry(1, 32, 32);
         // 创建一个纹理对象
-        let material = new Engin.MeshBasicMaterial({
-          color: 0x00ff00,
+        // let material = new Engin.MeshBasicMaterial({
+        //   color: 0x00ff00,
+        // });
+
+        let material = new Engin.MeshLambertMaterial({
+          color: [0.5, 0.5, 0.5, 1],
         });
         // 创建一个网格对象
         let sphere = new Engin.Mesh(geometry, material);
         // 将网格对象添加到场景中
         scene.add(sphere);
 
-        // //加载纹理
+        //加载纹理
         let loader = new Engin.TextureLoader();
         loader.load("./assets/env.jpg", (texture) => {
           material.map = texture;

@@ -10,8 +10,10 @@ export default class MeshBasicMaterial {
                 attribute vec4 v_color;
                 uniform mat4 rotationMatrix;
                 attribute vec2 uv;
+                attribute vec3 normal;
                 varying vec2 vUv;
                 varying vec4 vColor;
+                varying vec3 vNormal;
         
                 uniform vec4 cameraPosition;
                 uniform vec4 cameraDirection;
@@ -82,6 +84,7 @@ export default class MeshBasicMaterial {
                   // gl_Position =pMatrix*pos ;
                   vColor = v_color;
                   vUv = uv;
+                  vNormal = normal;
                 }
               `;
     
@@ -90,6 +93,7 @@ export default class MeshBasicMaterial {
         varying vec2 vUv;
         varying vec4 vColor;
         uniform sampler2D u_texture;
+        varying vec3 vNormal;
         void main(){
           vec4 textureColor = texture2D(u_texture,vUv);
           gl_FragColor = textureColor;     

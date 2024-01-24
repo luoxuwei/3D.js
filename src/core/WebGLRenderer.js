@@ -72,11 +72,12 @@ export default class WebGLRenderer {
       // 获取纹理
       const texture = mesh.material.map;
   
-      if (!texture.textureObj) {
-        // 创建纹理对象
-        const textureObject = this.gl.createTexture();
-        texture.textureObj = textureObject;
+      if (texture.textureObj) {
+        return;
       }
+      // 创建纹理对象
+      const textureObject = this.gl.createTexture();
+      texture.textureObj = textureObject;
       // 绑定纹理对象
       this.gl.bindTexture(this.gl.TEXTURE_2D, texture.textureObj);
       // 设置纹理参数
@@ -257,6 +258,28 @@ export default class WebGLRenderer {
         this.gl.vertexAttribPointer(uvLocation, 2, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(uvLocation);
       }
+
+          // 如果顶点有法线属性
+      if (geometry.attributes && geometry.attributes.normal) {
+        const normal = geometry.attributes.normal;
+        const normalLocation = this.gl.getAttribLocation(program, "normal");
+        if (!geometry.bufferData.normal) {
+          geometry.bufferData.normal = this.gl.createBuffer();
+        }
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.bufferData.normal);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, normal, this.gl.STATIC_DRAW);
+
+        this.gl.vertexAttribPointer(
+          normalLocation,
+          3,
+          this.gl.FLOAT,
+          false,
+          0,
+          0
+        );
+        this.gl.enableVertexAttribArray(normalLocation);
+      }
+
       // 设置索引缓冲区
       this.setIndexBuffer(program, geometry);
 

@@ -8,6 +8,7 @@ import OribitControls from "./core/OribitControls.js"
 import PlaneGeometry from "./core/PlaneGeometry.js";
 import Texture from "./core/Texture.js";
 import TextureLoader from "./core/TextureLoader.js";
+import SphereGeometry from "./core/SphereGeometry.js";
 
 export default {
   Scene,
@@ -20,4 +21,5 @@ export default {
   PlaneGeometry,
   Texture,
   TextureLoader,
+  SphereGeometry,
 };

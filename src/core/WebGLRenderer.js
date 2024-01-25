@@ -1,3 +1,4 @@
+import MeshDepthMaterial from "./MeshDepthMaterial.js";
 export default class WebGLRenderer {
     constructor() {
       this.type = "WebGLRenderer";
@@ -9,6 +10,12 @@ export default class WebGLRenderer {
       this.gl.clearColor(0, 0, 0, 1);
       this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
       this.lightArray = [];
+
+          
+      // 设置阴影纹理
+      this.shadowMap = {
+        enabled: true,
+      };
     }
     setSize(width, height) {
       this.domElement.width = width;
@@ -30,8 +37,121 @@ export default class WebGLRenderer {
         if (object.isLight && object.isAdd === undefined) {
           this.lightArray.push(object);
           object.isAdd = true;
+          // 判断灯光如果投射阴影，就调用渲染阴影的方法
+          if (object.castShadow && this.shadowMap.enabled) {
+            this.renderShadow(object, scene, camera);
+          }
         }
       });
+    }
+    renderShadow(light, scene, camera) {
+      // 设置阴影缓冲区
+      this.setShadowFramebuffer(light);
+      //对整个场景拍照，也是要把整个场景渲染出来
+      scene.traverse((object) => {
+        if (object.type === "Mesh") {
+          // 如果是网格对象，就调用渲染网格对象的方法
+          this.renderShadowMesh(object, light);
+          console.log(object);
+        }
+      });
+      // 清空缓冲区
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+      this.gl.viewport(0, 0, this.domElement.width, this.domElement.height);
+    }
+    renderShadowMesh(mesh, light) {
+      let depthMaterial = new MeshDepthMaterial();
+  
+      // 生成着色器程序
+      const program = this.getProgram(depthMaterial);
+      // 使用着色器程序
+      this.gl.useProgram(program);
+      this.gl.enable(this.gl.DEPTH_TEST);
+      // 设置顶点着色器属性
+      this.setVertexShaderAttribute(program, mesh);
+      // 设置模型矩阵
+      this.setModelMatrix(program, mesh);
+      // 设置相机矩阵
+      light.updateCamera();
+      this.setCameraProjectionMatrix(program, light.shadow.camera);
+  
+      // 绘制
+      this.gl.drawElements(
+        this.gl.TRIANGLES,
+        mesh.geometry.index.length,
+        this.gl.UNSIGNED_SHORT,
+        0
+      );
+    }
+    setShadowFramebuffer(light) {
+      // 纹理对象
+      this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, 1);
+      this.gl.activeTexture(this.gl.TEXTURE1);
+      this.shadowMapTexture = this.gl.createTexture();
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.shadowMapTexture);
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D,
+        this.gl.TEXTURE_MIN_FILTER,
+        this.gl.LINEAR
+      );
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D,
+        0,
+        this.gl.RGBA,
+        light.shadow.mapSize.x,
+        light.shadow.mapSize.y,
+        0,
+        this.gl.RGBA,
+        this.gl.UNSIGNED_BYTE,
+        null
+      );
+  
+      // 帧缓冲区
+      this.shadowMapFramebuffer = this.gl.createFramebuffer();
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.shadowMapFramebuffer);
+      // 将纹理对象绑定到帧缓冲区
+      this.gl.framebufferTexture2D(
+        this.gl.FRAMEBUFFER,
+        // 颜色关联
+        this.gl.COLOR_ATTACHMENT0,
+        this.gl.TEXTURE_2D,
+        this.shadowMapTexture,
+        0
+      );
+      // 渲染缓冲区
+      this.shadowMapRenderBuffer = this.gl.createRenderbuffer();
+      this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.shadowMapRenderBuffer);
+      this.gl.renderbufferStorage(
+        this.gl.RENDERBUFFER,
+        this.gl.DEPTH_COMPONENT16,
+        light.shadow.mapSize.x,
+        light.shadow.mapSize.y
+      );
+      // 设置渲染视口
+      this.gl.viewport(0, 0, light.shadow.mapSize.x, light.shadow.mapSize.y);
+      // 清空画布
+      this.gl.clearColor(0, 0, 0, 0);
+      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    }
+    setCameraProjectionMatrix(program, camera) {
+      const projectionMatrix = camera.projectionMatrix.toArray();
+      const projectionMatrixLocation = this.gl.getUniformLocation(
+        program,
+        "projectionMatrix"
+      );
+      this.gl.uniformMatrix4fv(
+        projectionMatrixLocation,
+        false,
+        new Float32Array(projectionMatrix)
+      );
+  
+      const pvMatrixLocation = this.gl.getUniformLocation(program, "pvMatrix");
+      this.gl.uniformMatrix4fv(
+        pvMatrixLocation,
+        false,
+        new Float32Array(camera.pvMatrix.toArray())
+      );
     }
     renderMesh(mesh, camera) {
       // 获取网格对象的几何体
@@ -110,6 +230,18 @@ export default class WebGLRenderer {
         "u_lightIntensity"
       );
       this.gl.uniform1f(intensityLocation, light.intensity);
+
+          
+      // 设置灯光投影矩阵
+      const lightShadowPVMatrixLocation = this.gl.getUniformLocation(
+        program,
+        "lightShadowPVMatrix"
+      );
+      this.gl.uniformMatrix4fv(
+        lightShadowPVMatrixLocation,
+        false,
+        new Float32Array(light.shadow.camera.pvMatrix.toArray())
+      );
     }
     setUniform(program, mesh, camera) {
       // 设置纹理
@@ -124,6 +256,22 @@ export default class WebGLRenderer {
       if (camera.position) {
         this.setUniformCameraPosition(program, camera);
       }
+      // 是否有shadowMap纹理
+      if (this.shadowMapTexture) {
+        this.setShadowMapTexture(program, mesh, camera);
+      }
+    }
+    setShadowMapTexture(program, mesh) {
+      // 获取纹理位置
+      const textureLocation = this.gl.getUniformLocation(program, "u_shadowMap");
+      // 设置纹理
+      this.gl.uniform1i(textureLocation, 1);//1纹理对应创建时的设置
+      // 设置使用了shadowMap纹理
+      const hasShadowMapLocation = this.gl.getUniformLocation(
+        program,
+        "u_hasShadowMap"
+      );
+      this.gl.uniform1i(hasShadowMapLocation, 1);
     }
     setUniformCameraPosition(program, camera) {
       const positionLocation = this.gl.getUniformLocation(program, "uEye");

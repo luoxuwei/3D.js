@@ -68,7 +68,7 @@
         // 将网格对象添加到场景中
         scene.add(plane);
         // 创建一个球几何体
-        let geometry = new Engin.SphereGeometry(1, 32, 32);
+        let geometry = new Engin.SphereGeometry(0.25, 32, 32);
         // 创建一个纹理对象
         // let material = new Engin.MeshBasicMaterial({
         //   color: 0x00ff00,
@@ -79,6 +79,7 @@
         });
         // 创建一个网格对象
         let sphere = new Engin.Mesh(geometry, material);
+        sphere.position.set(0, 0.5, 0);
         // 将网格对象添加到场景中
         scene.add(sphere);
 
@@ -90,8 +91,9 @@
 
         // 创建1个聚光灯
         let light = new Engin.SpotLight([1, 1, 1, 1], 1);
-        light.position.set(0, 5, 0);
-        light.target.set(1, 0, 0);
+        light.position.set(0, 5, -2);
+        // light.target.set(1, 0, 0);
+
         scene.add(light);
 
         // 创建控制器

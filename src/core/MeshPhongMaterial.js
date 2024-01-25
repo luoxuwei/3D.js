@@ -1,6 +1,6 @@
 export default class MeshPhongMaterial {
   constructor(params) {
-    this.type = "MeshLambertMaterial";
+    this.type = "MeshPhongMaterial";
     this.color = params.color || [1, 1, 1, 1];
     this.isVerticesColor = true;
 
@@ -13,6 +13,10 @@ export default class MeshPhongMaterial {
             varying vec4 vColor;
             varying vec3 vNormal;
             varying vec3 vPosition;
+
+            // 转换灯光投影的位置
+            varying vec4 vClipPosLight;
+            uniform mat4 lightShadowPVMatrix;
 
             // 模型矩阵
             uniform mat4 modelMatrix;
@@ -28,6 +32,7 @@ export default class MeshPhongMaterial {
               vNormal = tempNormal.xyz;
               vec4 temPosition = modelMatrix * v_position;
               vPosition = temPosition.xyz;
+              vClipPosLight = lightShadowPVMatrix * modelMatrix * v_position;
             }
           `;
 
@@ -47,6 +52,27 @@ export default class MeshPhongMaterial {
       uniform float uLightAngle;
       // 相机位置
       uniform vec3 uEye;
+
+      varying vec4 vClipPosLight;
+
+      uniform sampler2D u_shadowMap;
+
+      // 判断是否在阴影里
+      bool isInShadow(){
+        //转换到屏幕坐标空间，-1,1 => 0,1
+        vec3 fragPos = (vClipPosLight.xyz/vClipPosLight.w)/2.0+0.5;
+        vec4 shadowFrag = texture2D(u_shadowMap,fragPos.xy);
+        //深度材质里除了10，所以这里也要除10
+        //当前的深度比原来拍的深度大说明灯光被遮挡
+        return vClipPosLight.z/10.0 > shadowFrag.r;
+      }
+
+      //调试用
+      float Shadow(){
+        vec3 fragPos = (vClipPosLight.xyz/vClipPosLight.w)/2.0+0.5;
+        vec4 shadowFrag = texture2D(u_shadowMap,fragPos.xy);
+        return shadowFrag.r;
+      }
   
       void main(){
 
@@ -81,12 +107,22 @@ export default class MeshPhongMaterial {
         float specular = pow(max(dot(normal,halfDirection),0.0),128.0);
 
 
+        // // phong材质 = 光照强度*光照颜色*纹理颜色*材质颜色+高光强度*高光颜色
+        // vec4 finialColor = textureColor*u_color+lambert*vec4(lightColor,1.0)*textureColor*u_color+specular*vec4(1.0,1.0,1.0,1.0);
+        // gl_FragColor = vec4(finialColor.rgb,1.0);
+
+        // // gl_FragColor = u_color*textureColor;
+      
+        vec4 baseColor = textureColor*u_color;
+
+        vec4 lambertColor = baseColor+lambert*vec4(lightColor,1.0)*textureColor*u_color;
         // phong材质 = 光照强度*光照颜色*纹理颜色*材质颜色+高光强度*高光颜色
-        vec4 finialColor = textureColor*u_color+lambert*vec4(lightColor,1.0)*textureColor*u_color+specular*vec4(1.0,1.0,1.0,1.0);
+        vec4 finialColor = lambertColor+specular*vec4(1.0,1.0,1.0,1.0);
         gl_FragColor = vec4(finialColor.rgb,1.0);
 
-        // gl_FragColor = u_color*textureColor;
-      
+        gl_FragColor = isInShadow() ? vec4(baseColor.xyz,1.0):gl_FragColor;
+
+        // gl_FragColor = vec4(vec3(pow( Shadow(),1.0)),1.0);
       
       }`;
   }
